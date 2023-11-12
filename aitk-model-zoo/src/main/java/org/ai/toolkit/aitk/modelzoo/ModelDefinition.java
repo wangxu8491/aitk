@@ -1,0 +1,33 @@
+package org.ai.toolkit.aitk.modelzoo;
+
+import ai.djl.modality.Input;
+import ai.djl.modality.Output;
+import ai.djl.repository.zoo.Criteria;
+import java.util.List;
+import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
+import org.ai.toolkit.aitk.modelzoo.bean.Param;
+import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
+import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
+
+public interface ModelDefinition<P, Q> {
+
+    String getId();
+
+    ModelBasicInfo getModelBasicInfo();
+
+    P postProcessBeforeModel(Input input) throws Exception;
+
+    Output postProcessAfterModel(Input input, Q modelOutput) throws Exception;
+
+    Criteria getCriteria();
+
+    EngineEnum getEngine();
+
+    ModelTypeEnum getModelType();
+
+    List<Param> getLoadModelParams();
+
+    List<Param> getRequestParams();
+
+    List<Param> getResponseParams();
+}
