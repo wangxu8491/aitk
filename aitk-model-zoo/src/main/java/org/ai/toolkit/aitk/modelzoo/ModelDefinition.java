@@ -19,9 +19,9 @@ public interface ModelDefinition<P, Q> {
 
     Output postProcessAfterModel(Input input, Q modelOutput) throws Exception;
 
-    Criteria getCriteria();
+    List<Criteria> getCriteriaList();
 
-    EngineEnum getEngine();
+    List<EngineEnum> getEngineList();
 
     ModelTypeEnum getModelType();
 

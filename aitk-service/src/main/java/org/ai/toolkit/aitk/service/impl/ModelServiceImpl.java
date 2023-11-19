@@ -1,15 +1,16 @@
 package org.ai.toolkit.aitk.service.impl;
 
 import ai.djl.modality.Input;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
 import org.ai.toolkit.aitk.service.vo.ModelAsContactVO;
-import org.ai.toolkit.aitk.modelmanager.InferenceCallback;
-import org.ai.toolkit.aitk.modelmanager.InferenceExecutor;
+import org.ai.toolkit.aitk.modelzoo.executor.InferenceCallback;
 import org.ai.toolkit.aitk.modelmanager.ModelManager;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.service.ModelService;

@@ -135,7 +135,6 @@
                 <artifactId>aitk-front</artifactId>
                 <version>${aitk.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
