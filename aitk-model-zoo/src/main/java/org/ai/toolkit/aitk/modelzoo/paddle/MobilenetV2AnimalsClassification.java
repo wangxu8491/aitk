@@ -14,17 +14,20 @@ import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.ai.toolkit.aitk.modelzoo.constant.FileExtension;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
+import org.ai.toolkit.aitk.modelzoo.util.FileUtil;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, Classifications> {
+
     @Override
     public String getId() {
         return "cv/image_classification/mobilenetV2AnimalsClassification";
@@ -53,10 +56,11 @@ public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, 
     public List<Criteria> getCriteriaList() {
         try {
             ClassPathResource classPathResource = new ClassPathResource("paddle/models/animals.zip");
+            Path modelPath = FileUtil.saveFile(classPathResource.getInputStream(), DigestUtils.md5DigestAsHex(classPathResource.getURL().toString().getBytes()) + ".zip");
             Criteria<Image, Classifications> criteria =
                     Criteria.builder()
                             .setTypes(Image.class, Classifications.class)
-                            .optModelPath(Paths.get(classPathResource.getURI()))
+                            .optModelPath(modelPath)
                             .optEngine("PaddlePaddle").optTranslator(new MobileNetTranslator())
                             .build();
             return Arrays.asList(criteria);
@@ -64,6 +68,7 @@ public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, 
             throw new AitkException(AitkErrorCode.MODEL_LOAD_ERROR, e);
         }
     }
+
     @Override
     public List<EngineEnum> getEngineList() {
         return Arrays.asList(EngineEnum.PaddlePaddle);

@@ -1,11 +1,15 @@
 package org.ai.toolkit.aitk.modelzoo.util;
 
 import ai.djl.modality.cv.Image;
+
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+
 import org.ai.toolkit.aitk.common.constant.PathConstants;
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
@@ -18,10 +22,10 @@ public class FileUtil {
     public static String saveImage(Image image, FileExtension fileExtension) {
         try {
             String attachmentPath =
-                File.separator + PathConstants.ATTACHMENT_PATH + File.separator + fileExtension.getFileType().name()
-                    .toLowerCase();
+                    File.separator + PathConstants.ATTACHMENT_PATH + File.separator + fileExtension.getFileType().name()
+                            .toLowerCase();
             String filePath =
-                PathConstants.ATTACHMENT_PARENT_PATH + attachmentPath;
+                    PathConstants.ATTACHMENT_PARENT_PATH + attachmentPath;
             Path outputDir = Paths.get(filePath);
             Files.createDirectories(outputDir);
             String fileName = UUID.randomUUID().toString() + fileExtension.getSuffix();
@@ -31,5 +35,22 @@ public class FileUtil {
         } catch (Exception e) {
             throw new AitkException(AitkErrorCode.KNOWN_ERROR, "image save error", e);
         }
+    }
+
+    public static Path saveFile(InputStream inputStream, String fileName) {
+        try {
+            String attachmentPath =
+                    File.separator + PathConstants.ATTACHMENT_PATH + File.separator + "models";
+            String filePath =
+                    PathConstants.ATTACHMENT_PARENT_PATH + attachmentPath;
+            Path outputDir = Paths.get(filePath);
+            Files.createDirectories(outputDir);
+            Path path = outputDir.resolve(fileName);
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            return path;
+        } catch (Exception e) {
+            throw new AitkException(AitkErrorCode.KNOWN_ERROR, "file save error", e);
+        }
+
     }
 }

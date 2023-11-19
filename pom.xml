@@ -135,6 +135,11 @@
                 <artifactId>aitk-front</artifactId>
                 <version>${aitk.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ai.djl.huggingface</groupId>
+                <artifactId>tokenizers</artifactId>
+                <version>${djl.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
