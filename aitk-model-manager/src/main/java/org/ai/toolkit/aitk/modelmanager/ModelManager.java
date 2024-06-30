@@ -15,12 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
+import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -28,6 +31,9 @@ import org.springframework.util.CollectionUtils;
 public class ModelManager implements InitializingBean {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ModelManager.class);
+
+    @Value("${model.repository.type}")
+    private String modelRepositoryType;
 
     @Autowired
     private List<ModelDefinition> modelList;
@@ -113,6 +119,17 @@ public class ModelManager implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        GitEnum gitEnum = GitEnum.getGitEnum(modelRepositoryType);
+        try {
+            GitUtil.gitClone(gitEnum);
+        } catch (Exception e) {
+            LOGGER.error("gitClone err", e);
+        }
+        try {
+            GitUtil.gitPull(gitEnum);
+        } catch (Exception e) {
+            LOGGER.error("gitpull err", e);
+        }
         if (CollectionUtils.isEmpty(modelList)) {
             return;
         }

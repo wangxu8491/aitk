@@ -62,12 +62,12 @@ public class PaddleOCR implements ModelDefinition<Image, DetectedObjects> {
             if (subImg.getHeight() * 1.0 / subImg.getWidth() > 1.5) {
                 subImg = rotateImg(subImg);
             }
-            Classifications rotator = inferenceExecutor.execute(getId(), subImg, 2);
+            Classifications rotator = inferenceExecutor.asyncExecute(getId(), subImg, 2);
             Classifications.Classification result = rotator.best();
             if ("Rotate" .equals(result.getClassName()) && result.getProbability() > 0.8) {
                 subImg = rotateImg(subImg);
             }
-            String text = inferenceExecutor.execute(getId(), subImg, 1);
+            String text = inferenceExecutor.asyncExecute(getId(), subImg, 1);
             stringBuilder.append(text).append("\n");
         }
         Output output = new Output();

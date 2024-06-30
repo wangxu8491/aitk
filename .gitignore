@@ -3,3 +3,5 @@
 /*/*.iml
 /aitk-front/package-lock.json
 /aitk-front/node_modules/
+/aitk-front/dist/
+/aitk-server/attachment/

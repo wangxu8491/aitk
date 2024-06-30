@@ -8,7 +8,10 @@ import ai.djl.modality.cv.ImageFactory;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
+import ai.djl.paddlepaddle.zoo.cv.imageclassification.PpImageClassificationTranslatorFactory;
 import ai.djl.repository.zoo.Criteria;
+import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +60,7 @@ public class MaskDetection implements ModelDefinition<Image, DetectedObjects> {
         List<BoundingBox> rect = new ArrayList<>();
         for (DetectedObjects.DetectedObject face : faces) {
             Image subImg = getSubImage(img, face.getBoundingBox());
-            Classifications classifications = inferenceExecutor.execute(getId(), subImg, 1);
+            Classifications classifications = inferenceExecutor.asyncExecute(getId(), subImg, 1);
             names.add(classifications.best().getClassName());
             prob.add(face.getProbability());
             rect.add(face.getBoundingBox());
@@ -70,11 +74,12 @@ public class MaskDetection implements ModelDefinition<Image, DetectedObjects> {
 
     @Override
     public List<Criteria> getCriteriaList() {
+        String modelUrl = GitUtil.getModelBasePath(GitEnum.GITEE) + "/cv/face/paddle/mask_classification";
         Criteria<Image, Classifications> classifier =
                 Criteria.builder()
                         .setTypes(Image.class, Classifications.class)
-                        .optArtifactId("ai.djl.paddlepaddle:mask_classification")
-                        .optFilter("flavor", "server")
+                        .optModelPath(Path.of(modelUrl))
+                        .optTranslatorFactory(new PpImageClassificationTranslatorFactory())
                         .optOption("enableONNXRuntime", "true")
                         .optOption("enableOrtOptimization", "true")
                         .build();

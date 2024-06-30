@@ -21,20 +21,16 @@ public class InferenceExecutorImpl implements InferenceExecutor {
     private ModelManager modelManager;
 
     @Override
-    public <P, Q> void execute(String modelId, Input input, InferenceCallback callback) {
+    public <P, Q> void asyncExecute(String modelId, Input input, InferenceCallback callback) {
         try {
-            ModelInfo modelInfo = modelManager.getOnlineModelInfo(modelId);
-            ModelDefinition<P, Q> modelDefinition = modelManager.getOnlineModelDefinition(modelId);
-            P preResult = modelDefinition.postProcessBeforeModel(input);
-            CompletableFuture<Q> completableFuture = modelManager.getWorkLoadManager().runJob(new Job<>(modelInfo,
-                    preResult));
+            CompletableFuture<Q> completableFuture = execute(modelId, input);
             completableFuture.whenComplete((o, e) -> {
                 if (!Objects.isNull(e)) {
                     callback.callback(e, null);
                     return;
                 }
                 try {
-                    Output output = modelDefinition.postProcessAfterModel(input, o);
+                    Output output = modelManager.getOnlineModelDefinition(modelId).postProcessAfterModel(input, o);
                     callback.callback(null, output);
                 } catch (Throwable t) {
                     callback.callback(t, null);
@@ -46,7 +42,27 @@ public class InferenceExecutorImpl implements InferenceExecutor {
     }
 
     @Override
-    public <I, O> O execute(String modelId, I input, Integer modelIndex) {
+    public <P, Q> Output syncExecute(String modelId, Input input) {
+        try {
+            CompletableFuture<Q> completableFuture = execute(modelId, input);
+            Output output = modelManager.getOnlineModelDefinition(modelId).postProcessAfterModel(input, completableFuture.join());
+            return output;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <P, Q> CompletableFuture<Q> execute(String modelId, Input input) throws Exception {
+        ModelInfo modelInfo = modelManager.getOnlineModelInfo(modelId);
+        ModelDefinition<P, Q> modelDefinition = modelManager.getOnlineModelDefinition(modelId);
+        P preResult = modelDefinition.postProcessBeforeModel(input);
+        CompletableFuture<Q> completableFuture = modelManager.getWorkLoadManager().runJob(new Job<>(modelInfo,
+                preResult));
+        return completableFuture;
+    }
+
+    @Override
+    public <I, O> O asyncExecute(String modelId, I input, Integer modelIndex) {
         ModelInfo modelInfo = modelManager.getOnlineModelInfoList(modelId).get(modelIndex);
         CompletableFuture<O> completableFuture = modelManager.getWorkLoadManager().runJob(new Job<>(modelInfo,
                 input));

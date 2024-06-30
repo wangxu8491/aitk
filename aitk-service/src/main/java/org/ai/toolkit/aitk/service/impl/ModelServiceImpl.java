@@ -37,7 +37,7 @@ public class ModelServiceImpl implements ModelService, InitializingBean {
 
     @Override
     public void predict(String modelId, Input input, InferenceCallback callback) {
-        inferenceExecutor.execute(modelId, input, callback);
+        inferenceExecutor.asyncExecute(modelId, input, callback);
     }
 
     @Override
