@@ -2,7 +2,8 @@ package org.ai.toolkit.aitk.common.git;
 
 public enum GitEnum {
     GITHUB,
-    GITEE;
+    GITEE,
+    MODELSCOPE;
 
     public static GitEnum getGitEnum(String type) {
         for (GitEnum gitEnum : values()) {

@@ -1,10 +1,10 @@
 package org.ai.toolkit.aitk.modelzoo.constant;
 
 public enum ModelTypeEnum {
-    IMAGE,
+    CV,
     NLP,
     VOICE,
     VIDEO,
-    LLM;
-
+    LLM,
+    MULTIMODAL;
 }

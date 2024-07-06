@@ -5,6 +5,7 @@ import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,6 +22,9 @@ public abstract class AbstractBaseModelDefinition<P, Q> implements ModelDefiniti
     }
 
     protected Path getModelPath(String modelDir) {
+        if (!modelDir.startsWith("/")) {
+            modelDir = "/" + modelDir;
+        }
         return Paths.get(GitUtil.getModelBasePath(defaultGit()), modelDir);
     }
 }

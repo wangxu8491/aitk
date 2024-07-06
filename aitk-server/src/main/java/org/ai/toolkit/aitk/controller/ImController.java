@@ -1,16 +1,20 @@
 package org.ai.toolkit.aitk.controller;
 
 import ai.djl.modality.Input;
+import ai.djl.ndarray.BytesSupplier;
 import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.IOTypeEnum;
+import org.ai.toolkit.aitk.modelzoo.llm.IteratorLlamaCppSupplier;
 import org.ai.toolkit.aitk.service.vo.MessageVO;
 import org.ai.toolkit.aitk.service.vo.ModelAsContactVO;
 import org.ai.toolkit.aitk.service.vo.ModelParamVO;
@@ -94,7 +98,20 @@ public class ImController {
             List<Param> responseParams = modelParamVO.getResponseParams();
             for (Param param : responseParams) {
                 if (IOTypeEnum.STREAM.equals(param.getFileExtension().getFileType())) {
-
+                    BytesSupplier bytesSupplier = output.get(param.getName());
+                    if (bytesSupplier instanceof IteratorLlamaCppSupplier) {
+                        IteratorLlamaCppSupplier iteratorLlamaCppSupplier = (IteratorLlamaCppSupplier) bytesSupplier;
+                        while (iteratorLlamaCppSupplier.hasNext()){
+                            MessageVO messageVO = new MessageVO();
+                            messageVO.setId(UUID.randomUUID().toString());
+                            messageVO.setContent(iteratorLlamaCppSupplier.next().text);
+                            messageVO.setType("text");
+                            messageVO.setToContactId(modelId);
+                            messageVO.setFromUser(createUser(modelId));
+                            Gson gson = new Gson();
+                            webSocketManager.sendMessage(userId, gson.toJson(messageVO));
+                        }
+                    }
                 } else {
                     MessageVO messageVO = new MessageVO();
                     messageVO.setId(UUID.randomUUID().toString());

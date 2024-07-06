@@ -8,23 +8,16 @@ import ai.djl.modality.cv.ImageFactory;
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
-import org.ai.toolkit.aitk.common.git.GitEnum;
-import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
-import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.ai.toolkit.aitk.modelzoo.constant.FileExtension;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
-import org.ai.toolkit.aitk.modelzoo.util.FileUtil;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,7 +73,7 @@ public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinitio
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.IMAGE;
+        return ModelTypeEnum.CV;
     }
 
     @Override

@@ -6,11 +6,11 @@ import de.kherud.llama.LlamaOutput;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-public class IteratorBytesSupplier implements BytesSupplier, Iterator<LlamaOutput> {
+public class IteratorLlamaCppSupplier implements BytesSupplier, Iterator<LlamaOutput> {
 
     private Iterator<LlamaOutput> sources;
 
-    public IteratorBytesSupplier(Iterator<LlamaOutput> sources) {
+    public IteratorLlamaCppSupplier(Iterator<LlamaOutput> sources) {
         this.sources = sources;
     }
 
@@ -26,11 +26,6 @@ public class IteratorBytesSupplier implements BytesSupplier, Iterator<LlamaOutpu
 
     @Override
     public ByteBuffer toByteBuffer() {
-        return ByteBuffer.wrap(getAsBytes());
-    }
-
-    @Override
-    public byte[] getAsBytes() {
-       return null;
+        return ByteBuffer.wrap(new byte[]{});
     }
 }

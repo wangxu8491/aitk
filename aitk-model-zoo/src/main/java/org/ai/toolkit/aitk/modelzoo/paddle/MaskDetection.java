@@ -10,18 +10,13 @@ import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.paddlepaddle.zoo.cv.imageclassification.PpImageClassificationTranslatorFactory;
 import ai.djl.repository.zoo.Criteria;
-import org.ai.toolkit.aitk.common.git.GitEnum;
-import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
-import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.ai.toolkit.aitk.modelzoo.constant.FileExtension;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
-import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
 import org.ai.toolkit.aitk.modelzoo.util.FileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -101,7 +96,7 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.IMAGE;
+        return ModelTypeEnum.CV;
     }
 
     @Override

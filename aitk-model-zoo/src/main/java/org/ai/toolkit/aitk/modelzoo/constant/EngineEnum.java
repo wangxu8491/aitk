@@ -10,7 +10,6 @@ public enum EngineEnum {
     PyTorch,
     TensorFlow,
     LlamaCpp;
-
 }
 
 

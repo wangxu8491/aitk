@@ -13,14 +13,11 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
-import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.ai.toolkit.aitk.modelzoo.constant.FileExtension;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
-import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -106,7 +103,7 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.IMAGE;
+        return ModelTypeEnum.CV;
     }
 
     @Override

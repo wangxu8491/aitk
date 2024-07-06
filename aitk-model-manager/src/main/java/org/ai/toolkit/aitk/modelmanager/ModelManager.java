@@ -7,24 +7,32 @@ import ai.djl.repository.zoo.ZooModel;
 import ai.djl.serving.wlm.ModelInfo;
 import ai.djl.serving.wlm.WorkLoadManager;
 
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
+import org.ai.toolkit.aitk.modelmanager.llm.LlmModelDefine;
+import org.ai.toolkit.aitk.modelmanager.llm.ModelDetail;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
+import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
+import org.ai.toolkit.aitk.modelzoo.llm.LlamaCppModelDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -32,6 +40,8 @@ import org.springframework.util.CollectionUtils;
 public class ModelManager implements InitializingBean {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ModelManager.class);
+
+    private static final String DEFINE_FILE_JSON = "llm/model.json";
 
     @Autowired
     private ModelRepositoryType modelRepositoryType;
@@ -71,11 +81,23 @@ public class ModelManager implements InitializingBean {
         return ONLINE_MODEL_MAPPING.get(modelId);
     }
 
-    public void loadModel(String modelId, Device device) {
+    public void loadModel(String modelId, Device device, List<Map<String, ?>> optionList) {
         List<Criteria> criteriaList = ALL_MODEL_MAPPING.get(modelId).getCriteriaList();
         ModelDefinition modelDefinition = ALL_MODEL_MAPPING.get(modelId);
+        if (!CollectionUtils.isEmpty(optionList) && optionList.size() != criteriaList.size()) {
+            throw new AitkException(AitkErrorCode.MODEL_LOAD_ERROR, "criteriaList.size() not equals optionList.size()");
+        }
         for (int i = 0; i < criteriaList.size(); i++) {
-            ModelInfo modelInfo = new ModelInfo(modelId + "_" + i, "", criteriaList.get(i));
+            Criteria criteria = criteriaList.get(i);
+            if (!CollectionUtils.isEmpty(optionList)) {
+                Map<String, ?> options = optionList.get(i);
+                if (!CollectionUtils.isEmpty(options)) {
+                    Criteria.Builder builder = criteria.toBuilder();
+                    options.entrySet().stream().forEach(kv -> builder.optOption(kv.getKey(), String.valueOf(kv.getValue())));
+                    criteria = builder.build();
+                }
+            }
+            ModelInfo modelInfo = new ModelInfo(modelId + "_" + i, "", criteria);
             try {
                 Field engineNameField = ModelInfo.class.getDeclaredField("engineName");
                 engineNameField.setAccessible(true);
@@ -129,6 +151,21 @@ public class ModelManager implements InitializingBean {
         } catch (Exception e) {
             LOGGER.error("gitpull err", e);
         }
+        String json = GitUtil.getModelBasePath(gitEnum) + File.separator + DEFINE_FILE_JSON;
+        Gson gson = new Gson();
+        List<LlmModelDefine> llmModelDefines = gson.fromJson(new FileReader(json), new TypeToken<List<LlmModelDefine>>() {}.getType());
+        if (!CollectionUtils.isEmpty(llmModelDefines)) {
+            for (LlmModelDefine llmModelDefine : llmModelDefines) {
+                if (!Objects.isNull(llmModelDefine) && !CollectionUtils.isEmpty(llmModelDefine.getModels())) {
+                    for (ModelDetail modelDetail : llmModelDefine.getModels()) {
+                        LlamaCppModelDefinition llamaCppModelDefinition = new LlamaCppModelDefinition(llmModelDefine.getName(),
+                                modelDetail.getName(), modelDetail.getPath(), new ModelBasicInfo());
+                        modelList.add(llamaCppModelDefinition);
+                    }
+                }
+            }
+        }
+
         if (CollectionUtils.isEmpty(modelList)) {
             return;
         }
@@ -137,7 +174,7 @@ public class ModelManager implements InitializingBean {
                 throw new AitkException(AitkErrorCode.KNOWN_ERROR, "modelId is duplicate");
             }
             ALL_MODEL_MAPPING.put(modelDefinition.getId(), modelDefinition);
-            loadModel(modelDefinition.getId(), Device.cpu());
+            loadModel(modelDefinition.getId(), Device.cpu(), null);
         }
     }
 

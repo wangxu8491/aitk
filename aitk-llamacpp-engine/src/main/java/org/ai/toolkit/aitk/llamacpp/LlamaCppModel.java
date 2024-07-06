@@ -9,9 +9,11 @@ import de.kherud.llama.ModelParameters;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 
 public class LlamaCppModel extends BaseModel {
     private LlamaModel model;
@@ -40,8 +42,18 @@ public class LlamaCppModel extends BaseModel {
             throw new FileNotFoundException(".gguf file not found in: " + modelPath);
         }
         ModelParameters modelParams = new ModelParameters()
-                .setModelFilePath(modelFile.toAbsolutePath().toString())
-                .setNGpuLayers(43);
+                .setModelFilePath(modelFile.toAbsolutePath().toString());
+        try {
+            Field field = ModelParameters.class.getSuperclass().getDeclaredField("parameters");
+            field.setAccessible(true);
+            Map<String, String> parameters = (Map<String, String>) field.get(modelParams);
+            if (!Objects.isNull(options) && !options.isEmpty()) {
+                options.entrySet().stream().forEach(kv -> parameters.put(kv.getKey(), String.valueOf(kv.getValue())));
+            }
+            field.setAccessible(false);
+        } catch (Exception e) {
+           throw new RuntimeException(e);
+        }
         model = new LlamaModel(modelParams);
         block = Blocks.identityBlock();
     }
