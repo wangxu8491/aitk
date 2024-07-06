@@ -73,8 +73,10 @@
       handleChangeContact() {
       },
       handleSend(message, next, file) {
+        console.log(message);
         let formData = new FormData();
         formData.append('file', file);
+        formData.append('text', message.content)
         formData.append("userId", message.fromUser.id);
         formData.append("modelId", message.toContactId);
         handleMessage(formData, response => {
