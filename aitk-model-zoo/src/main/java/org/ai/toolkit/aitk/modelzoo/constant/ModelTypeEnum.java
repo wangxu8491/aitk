@@ -5,6 +5,6 @@ public enum ModelTypeEnum {
     NLP,
     VOICE,
     VIDEO,
-    LM;
+    LLM;
 
 }

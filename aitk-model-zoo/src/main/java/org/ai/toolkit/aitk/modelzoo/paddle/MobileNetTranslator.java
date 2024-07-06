@@ -11,8 +11,11 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.NoBatchifyTranslator;
 import ai.djl.translate.TranslatorContext;
 import ai.djl.util.Utils;
+import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.util.List;
 
 /**
@@ -25,7 +28,7 @@ public class MobileNetTranslator implements NoBatchifyTranslator<Image, Classifi
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         if (classes == null) {
-            classes = Utils.readLines(new ClassPathResource("paddle/models/labelList.txt").getInputStream());
+            classes = Utils.readLines(new FileInputStream(GitUtil.getModelBasePath(GitEnum.GITEE) + "/cv/classification/paddle/animals_classification/labelList.txt"));
         }
     }
 

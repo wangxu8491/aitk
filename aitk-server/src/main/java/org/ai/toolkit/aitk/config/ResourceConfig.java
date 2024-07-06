@@ -14,8 +14,8 @@ public class ResourceConfig extends WebMvcConfigurationSupport  {
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/", "classpath:/META-INF/");
         registry.addResourceHandler("/modelimage/**").addResourceLocations("classpath:/modelimage/");
         registry.addResourceHandler("/image/**").addResourceLocations("classpath:/image/");
-        registry.addResourceHandler("/attachment/**")
-            .addResourceLocations("file:" + PathUtil.getParentUserDir() + File.separator + "attachment/");
+        registry.addResourceHandler("/.attachment/**")
+            .addResourceLocations("file:" + PathUtil.getParentUserDir() + File.separator + ".attachment/");
         super.addResourceHandlers(registry);
     }
 

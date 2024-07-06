@@ -18,6 +18,7 @@ import org.ai.toolkit.aitk.common.exception.AitkException;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
+import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +33,8 @@ public class ModelManager implements InitializingBean {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ModelManager.class);
 
-    @Value("${model.repository.type}")
-    private String modelRepositoryType;
+    @Autowired
+    private ModelRepositoryType modelRepositoryType;
 
     @Autowired
     private List<ModelDefinition> modelList;
@@ -70,7 +71,6 @@ public class ModelManager implements InitializingBean {
         return ONLINE_MODEL_MAPPING.get(modelId);
     }
 
-
     public void loadModel(String modelId, Device device) {
         List<Criteria> criteriaList = ALL_MODEL_MAPPING.get(modelId).getCriteriaList();
         ModelDefinition modelDefinition = ALL_MODEL_MAPPING.get(modelId);
@@ -95,7 +95,6 @@ public class ModelManager implements InitializingBean {
                 throw new AitkException(AitkErrorCode.MODEL_LOAD_ERROR, e);
             }
         }
-
     }
 
     public void unloadModel(String modelId) {
@@ -103,7 +102,7 @@ public class ModelManager implements InitializingBean {
             return;
         }
         List<ModelInfo> modelInfoList = ONLINE_MODEL_MAPPING.get(modelId);
-        for (ModelInfo modelInfo:modelInfoList){
+        for (ModelInfo modelInfo : modelInfoList) {
             Map<Device, ZooModel> models = modelInfo.getModels();
             if (!CollectionUtils.isEmpty(models)) {
                 for (Model m : models.values()) {
@@ -119,7 +118,7 @@ public class ModelManager implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        GitEnum gitEnum = GitEnum.getGitEnum(modelRepositoryType);
+        GitEnum gitEnum = modelRepositoryType.getDefaultGitEnum();
         try {
             GitUtil.gitClone(gitEnum);
         } catch (Exception e) {

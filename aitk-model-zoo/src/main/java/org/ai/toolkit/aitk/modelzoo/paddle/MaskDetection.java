@@ -12,6 +12,7 @@ import ai.djl.paddlepaddle.zoo.cv.imageclassification.PpImageClassificationTrans
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
+import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
@@ -30,9 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class MaskDetection implements ModelDefinition<Image, DetectedObjects> {
-    @Autowired
-    private InferenceExecutor inferenceExecutor;
+public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedObjects> {
 
     @Override
     public String getId() {
@@ -74,11 +73,11 @@ public class MaskDetection implements ModelDefinition<Image, DetectedObjects> {
 
     @Override
     public List<Criteria> getCriteriaList() {
-        String modelUrl = GitUtil.getModelBasePath(GitEnum.GITEE) + "/cv/face/paddle/mask_classification";
+        Path modelUrl = getModelPath("/cv/face/paddle/mask_classification");
         Criteria<Image, Classifications> classifier =
                 Criteria.builder()
                         .setTypes(Image.class, Classifications.class)
-                        .optModelPath(Path.of(modelUrl))
+                        .optModelPath(modelUrl)
                         .optTranslatorFactory(new PpImageClassificationTranslatorFactory())
                         .optOption("enableONNXRuntime", "true")
                         .optOption("enableOrtOptimization", "true")
@@ -103,11 +102,6 @@ public class MaskDetection implements ModelDefinition<Image, DetectedObjects> {
     @Override
     public ModelTypeEnum getModelType() {
         return ModelTypeEnum.IMAGE;
-    }
-
-    @Override
-    public List<Param> getLoadModelParams() {
-        return new ArrayList<>();
     }
 
     @Override

@@ -23,6 +23,7 @@
         <module>aitk-front</module>
         <module>aitk-service</module>
         <module>aitk-server</module>
+        <module>aitk-llamacpp-engine</module>
     </modules>
     <properties>
         <java.version>11</java.version>
@@ -31,6 +32,7 @@
         <djl.paddle.version>0.26.0</djl.paddle.version>
         <h2.version>2.2.224</h2.version>
         <jgit.version>6.10.0.202406032230-r</jgit.version>
+        <llamacpp.version>3.2.1</llamacpp.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -134,6 +136,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ai.toolkit</groupId>
+                <artifactId>aitk-llamacpp-engine</artifactId>
+                <version>${aitk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ai.toolkit</groupId>
                 <artifactId>aitk-front</artifactId>
                 <version>${aitk.version}</version>
             </dependency>
@@ -147,7 +154,11 @@
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${jgit.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>de.kherud</groupId>
+                <artifactId>llama</artifactId>
+                <version>${llamacpp.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -12,6 +12,7 @@ import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.djl.repository.zoo.Criteria;
+import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
@@ -28,10 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class PaddleOCR implements ModelDefinition<Image, DetectedObjects> {
+public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObjects> {
 
-    @Autowired
-    private InferenceExecutor inferenceExecutor;
 
     @Override
     public String getId() {
@@ -108,11 +107,6 @@ public class PaddleOCR implements ModelDefinition<Image, DetectedObjects> {
     @Override
     public ModelTypeEnum getModelType() {
         return ModelTypeEnum.IMAGE;
-    }
-
-    @Override
-    public List<Param> getLoadModelParams() {
-        return new ArrayList<>();
     }
 
     @Override

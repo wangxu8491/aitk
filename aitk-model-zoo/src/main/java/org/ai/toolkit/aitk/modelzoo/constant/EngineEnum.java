@@ -8,7 +8,9 @@ public enum EngineEnum {
     TensorRT,
     OnnxRuntime,
     PyTorch,
-    TensorFlow;
+    TensorFlow,
+    LlamaCpp;
+
 }
 
 

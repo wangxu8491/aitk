@@ -8,6 +8,9 @@ import ai.djl.modality.cv.ImageFactory;
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
+import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.git.GitUtil;
+import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
@@ -21,12 +24,13 @@ import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, Classifications> {
+public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinition<Image, Classifications> {
 
     @Override
     public String getId() {
@@ -52,11 +56,11 @@ public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, 
         return output;
     }
 
+
     @Override
     public List<Criteria> getCriteriaList() {
         try {
-            ClassPathResource classPathResource = new ClassPathResource("paddle/models/animals.zip");
-            Path modelPath = FileUtil.saveFile(classPathResource.getInputStream(), DigestUtils.md5DigestAsHex(classPathResource.getURL().toString().getBytes()) + ".zip");
+            Path modelPath = getModelPath("/cv/classification/paddle/animals_classification/animals.zip");
             Criteria<Image, Classifications> criteria =
                     Criteria.builder()
                             .setTypes(Image.class, Classifications.class)
@@ -77,11 +81,6 @@ public class MobilenetV2AnimalsClassification implements ModelDefinition<Image, 
     @Override
     public ModelTypeEnum getModelType() {
         return ModelTypeEnum.IMAGE;
-    }
-
-    @Override
-    public List<Param> getLoadModelParams() {
-        return new ArrayList<>();
     }
 
     @Override

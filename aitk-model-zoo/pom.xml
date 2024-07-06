@@ -43,7 +43,11 @@
             <groupId>ai.djl.tensorflow</groupId>
             <artifactId>tensorflow-model-zoo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ai.toolkit</groupId>
+            <artifactId>aitk-llamacpp-engine</artifactId>
+        </dependency>
+
+
     </dependencies>
-
-
 </project>

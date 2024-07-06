@@ -3,6 +3,8 @@ package org.ai.toolkit.aitk.modelzoo;
 import ai.djl.modality.Input;
 import ai.djl.modality.Output;
 import ai.djl.repository.zoo.Criteria;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
@@ -25,7 +27,9 @@ public interface ModelDefinition<P, Q> {
 
     ModelTypeEnum getModelType();
 
-    List<Param> getLoadModelParams();
+   default List<Param> getLoadModelParams(){
+       return new ArrayList<>();
+   }
 
     List<Param> getRequestParams();
 
