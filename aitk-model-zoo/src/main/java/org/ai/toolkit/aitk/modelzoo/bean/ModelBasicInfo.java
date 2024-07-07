@@ -8,20 +8,14 @@ public class ModelBasicInfo implements Serializable {
 
     private String displayName;
 
-    private String modelDescription;
+    private String modelDescriptionPath;
 
-    private String modelIcon;
-
-    private String prompt;
-
-    public ModelBasicInfo() {
+    public ModelBasicInfo(String displayName, String modelDescriptionPath) {
+        this.displayName = displayName;
+        this.modelDescriptionPath = modelDescriptionPath;
     }
 
-    public ModelBasicInfo(String displayName, String modelDescription, String modelIcon, String prompt) {
-        this.displayName = displayName;
-        this.modelDescription = modelDescription;
-        this.modelIcon = modelIcon;
-        this.prompt = prompt;
+    public ModelBasicInfo() {
     }
 
     public String getDisplayName() {
@@ -32,27 +26,11 @@ public class ModelBasicInfo implements Serializable {
         this.displayName = displayName;
     }
 
-    public String getModelDescription() {
-        return modelDescription;
+    public String getModelDescriptionPath() {
+        return modelDescriptionPath;
     }
 
-    public void setModelDescription(String modelDescription) {
-        this.modelDescription = modelDescription;
-    }
-
-    public String getModelIcon() {
-        return modelIcon;
-    }
-
-    public void setModelIcon(String modelIcon) {
-        this.modelIcon = modelIcon;
-    }
-
-    public String getPrompt() {
-        return prompt;
-    }
-
-    public void setPrompt(String prompt) {
-        this.prompt = prompt;
+    public void setModelDescriptionPath(String modelDescriptionPath) {
+        this.modelDescriptionPath = modelDescriptionPath;
     }
 }

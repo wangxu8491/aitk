@@ -22,13 +22,9 @@ import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
-import org.ai.toolkit.aitk.modelmanager.llm.LlmModelDefine;
-import org.ai.toolkit.aitk.modelmanager.llm.ModelDetail;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
-import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.constant.EngineEnum;
-import org.ai.toolkit.aitk.modelzoo.llm.LlamaCppModelDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -40,8 +36,6 @@ import org.springframework.util.CollectionUtils;
 public class ModelManager implements InitializingBean {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ModelManager.class);
-
-    private static final String DEFINE_FILE_JSON = "llm/model.json";
 
     @Autowired
     private ModelRepositoryType modelRepositoryType;
@@ -140,32 +134,6 @@ public class ModelManager implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        GitEnum gitEnum = modelRepositoryType.getDefaultGitEnum();
-        try {
-            GitUtil.gitClone(gitEnum);
-        } catch (Exception e) {
-            LOGGER.error("gitClone err", e);
-        }
-        try {
-            GitUtil.gitPull(gitEnum);
-        } catch (Exception e) {
-            LOGGER.error("gitpull err", e);
-        }
-        String json = GitUtil.getModelBasePath(gitEnum) + File.separator + DEFINE_FILE_JSON;
-        Gson gson = new Gson();
-        List<LlmModelDefine> llmModelDefines = gson.fromJson(new FileReader(json), new TypeToken<List<LlmModelDefine>>() {}.getType());
-        if (!CollectionUtils.isEmpty(llmModelDefines)) {
-            for (LlmModelDefine llmModelDefine : llmModelDefines) {
-                if (!Objects.isNull(llmModelDefine) && !CollectionUtils.isEmpty(llmModelDefine.getModels())) {
-                    for (ModelDetail modelDetail : llmModelDefine.getModels()) {
-                        LlamaCppModelDefinition llamaCppModelDefinition = new LlamaCppModelDefinition(llmModelDefine.getName(),
-                                modelDetail.getName(), modelDetail.getPath(), new ModelBasicInfo());
-                        modelList.add(llamaCppModelDefinition);
-                    }
-                }
-            }
-        }
-
         if (CollectionUtils.isEmpty(modelList)) {
             return;
         }

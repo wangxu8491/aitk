@@ -36,7 +36,7 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
 
     @Override
     public ModelBasicInfo getModelBasicInfo() {
-        return new ModelBasicInfo("Paddle图片文字识别", "paddle ocr", "/modelimage/model.jpg", "请输入一张图片");
+        return new ModelBasicInfo("Paddle OCR", "");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
             }
             Classifications rotator = inferenceExecutor.asyncExecute(getId(), subImg, 2);
             Classifications.Classification result = rotator.best();
-            if ("Rotate" .equals(result.getClassName()) && result.getProbability() > 0.8) {
+            if ("Rotate".equals(result.getClassName()) && result.getProbability() > 0.8) {
                 subImg = rotateImg(subImg);
             }
             String text = inferenceExecutor.asyncExecute(getId(), subImg, 1);
@@ -103,7 +103,7 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.CV;
+        return ModelTypeEnum.OCR;
     }
 
     @Override

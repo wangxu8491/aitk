@@ -32,7 +32,7 @@ public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinitio
 
     @Override
     public ModelBasicInfo getModelBasicInfo() {
-        return new ModelBasicInfo("Paddle7978种动物分类", "paddle mobilenet 7978种动物分类", "/modelimage/model.jpg", "请输入一张图片");
+        return new ModelBasicInfo("Paddle7978种动物分类", "");
     }
 
     @Override
@@ -73,7 +73,7 @@ public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinitio
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.CV;
+        return ModelTypeEnum.VISION_CLASSIFICATION;
     }
 
     @Override

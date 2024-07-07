@@ -65,7 +65,7 @@ public class ModelServiceImpl implements ModelService, InitializingBean {
             modelAsContactVO.setUnread(0);
             modelAsContactVO.setIndex(modelDefinition.getModelType().name());
             modelAsContactVO.setLastSendTime(System.currentTimeMillis());
-            modelAsContactVO.setAvatar(modelDefinition.getModelBasicInfo().getModelIcon());
+            modelAsContactVO.setAvatar(modelDefinition.getModelBasicInfo().getDisplayName());
             MODEL_AS_CONTACT_VO_MAP.put(modelDefinition.getId(), modelAsContactVO);
         }
     }

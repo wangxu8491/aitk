@@ -33,7 +33,7 @@ public class LlamaCppModelDefinition extends AbstractBaseModelDefinition<LlamaCp
 
     @Override
     public String getId() {
-        return String.format(FORMAT, modelName, modelPath);
+        return String.format(FORMAT, modelName, size);
     }
 
     private List<Param> inferenceParams = new ArrayList<>();

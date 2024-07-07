@@ -35,7 +35,7 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
 
     @Override
     public ModelBasicInfo getModelBasicInfo() {
-        return new ModelBasicInfo("口罩人脸识别", "paddle", "/modelimage/model.jpg", "请输入一张图片");
+        return new ModelBasicInfo("PaddlePaddle口罩人脸识别", "");
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
 
     @Override
     public ModelTypeEnum getModelType() {
-        return ModelTypeEnum.CV;
+        return ModelTypeEnum.HUMAN_FACE_BODY;
     }
 
     @Override

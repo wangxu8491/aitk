@@ -65,7 +65,7 @@ public class ImController {
         ModelParamVO modelParamVO = modelService.getModelParamVO(modelId);
         MessageVO messageVO = new MessageVO();
         messageVO.setId(UUID.randomUUID().toString());
-        messageVO.setContent(modelParamVO.getModelBasicInfo().getPrompt());
+        messageVO.setContent(modelParamVO.getModelBasicInfo().getDisplayName());
         messageVO.setType("text");
         messageVO.setToContactId(modelId);
         messageVO.setFromUser(createUser(modelId));
