@@ -10,8 +10,9 @@ public enum AitkErrorCode {
 
     PARAMETER_VALIDATION_ERROR(10001, "parameter validation error"),
 
-    MODEL_NOT_LOADED_ERROR(10002, "Please load the model first")
+    MODEL_NOT_LOADED_ERROR(10002, "Please load the model first"),
 
+    DOWNLOAD_LLM_JSON_ERROR(20000,"Error downloading LLM model file")
     ;
 
     AitkErrorCode(Integer code, String msg) {

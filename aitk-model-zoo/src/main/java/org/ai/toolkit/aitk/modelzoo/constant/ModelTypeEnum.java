@@ -1,5 +1,7 @@
 package org.ai.toolkit.aitk.modelzoo.constant;
 
+import java.util.*;
+
 public enum ModelTypeEnum {
     VISION_DETECTION_TRACKING("视觉检测跟踪", ModelParentTypeEnum.CV),
     OCR("光学字符识别", ModelParentTypeEnum.CV),
@@ -23,6 +25,18 @@ public enum ModelTypeEnum {
     private String name;
 
     private ModelParentTypeEnum modelParentTypeEnum;
+
+    public static Map<ModelParentTypeEnum, List<ModelTypeEnum>> getParentTypeMap() {
+        Map<ModelParentTypeEnum, List<ModelTypeEnum>> result = new HashMap<>();
+        for (ModelTypeEnum modelTypeEnum : ModelTypeEnum.values()) {
+            if (result.containsKey(modelTypeEnum.getModelParentTypeEnum())) {
+                result.get(modelTypeEnum.getModelParentTypeEnum()).add(modelTypeEnum);
+            } else {
+                result.put(modelTypeEnum.getModelParentTypeEnum(), new ArrayList<>(Arrays.asList(modelTypeEnum)));
+            }
+        }
+        return result;
+    }
 
     ModelTypeEnum(String name, ModelParentTypeEnum modelParentTypeEnum) {
         this.name = name;

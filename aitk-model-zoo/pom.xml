@@ -47,7 +47,5 @@
             <groupId>org.ai.toolkit</groupId>
             <artifactId>aitk-llamacpp-engine</artifactId>
         </dependency>
-
-
     </dependencies>
 </project>

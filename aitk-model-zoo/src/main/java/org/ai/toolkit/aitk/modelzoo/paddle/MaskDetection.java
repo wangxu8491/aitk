@@ -9,6 +9,7 @@ import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.paddlepaddle.zoo.cv.imageclassification.PpImageClassificationTranslatorFactory;
+import ai.djl.paddlepaddle.zoo.cv.objectdetection.PpFaceDetectionTranslatorFactory;
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
@@ -30,7 +31,20 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
 
     @Override
     public String getId() {
-        return "cv/face/maskDetection";
+        return "/paddle/cv/face/maskDetection";
+    }
+
+    @Override
+    public List<String> getModelFileList() {
+        return Arrays.asList(
+                "cv/face/paddle/mask_classification/__model__",
+                "cv/face/paddle/mask_classification/__params__",
+                "cv/face/paddle/mask_classification/synset.txt",
+                "cv/face/paddle/face_detection/__model__",
+                "cv/face/paddle/face_detection/__params__",
+                "cv/face/paddle/face_detection/synset.txt");
+
+
     }
 
     @Override
@@ -68,23 +82,19 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
 
     @Override
     public List<Criteria> getCriteriaList() {
-        Path modelUrl = getModelPath("/cv/face/paddle/mask_classification");
+        Path modelUrl = getModelPath("cv/face/paddle/mask_classification");
         Criteria<Image, Classifications> classifier =
                 Criteria.builder()
                         .setTypes(Image.class, Classifications.class)
                         .optModelPath(modelUrl)
                         .optTranslatorFactory(new PpImageClassificationTranslatorFactory())
-                        .optOption("enableONNXRuntime", "true")
-                        .optOption("enableOrtOptimization", "true")
                         .build();
 
         Criteria<Image, DetectedObjects> detectFaces =
                 Criteria.builder()
                         .setTypes(Image.class, DetectedObjects.class)
-                        .optArtifactId("ai.djl.paddlepaddle:face_detection")
-                        .optFilter("flavor", "server")
-                        .optOption("enableONNXRuntime", "true")
-                        .optOption("enableOrtOptimization", "true")
+                        .optModelPath(getModelPath("cv/face/paddle/face_detection"))
+                        .optTranslatorFactory(new PpFaceDetectionTranslatorFactory())
                         .build();
         return Arrays.asList(detectFaces, classifier);
     }
@@ -111,6 +121,11 @@ public class MaskDetection extends AbstractBaseModelDefinition<Image, DetectedOb
         List<Param> params = new ArrayList<>();
         params.add(new Param("url", FileExtension.PNG));
         return params;
+    }
+
+    @Override
+    protected Path getModelPath(String modelDir) {
+        return super.getModelPath(modelDir);
     }
 
     private Image getSubImage(Image img, BoundingBox box) {

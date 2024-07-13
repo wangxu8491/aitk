@@ -15,6 +15,8 @@ public interface ModelDefinition<P, Q> {
 
     String getId();
 
+    List<String> getModelFileList();
+
     ModelBasicInfo getModelBasicInfo();
 
     P postProcessBeforeModel(Input input) throws Exception;

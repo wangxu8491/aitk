@@ -1,160 +1,98 @@
 <template>
-  <lemon-imui
-      :user="selfUser"
-      ref="IMUI"
-      :width="900"
-      :hide-message-name="false"
-      :hide-message-time="false"
-      :avatarCricle="true"
-      @change-contact="handleChangeContact"
-      @pull-messages="handlePullMessages"
-      @send="handleSend"
-      style="min-height:600px">
-  </lemon-imui>
+    <div id="app">
+        <el-container style="height: 100vh ;  display: flex;  border: 1px solid #eee">
+            <el-header class="header">
+                AITK
+            </el-header>
+            <el-container>
+                <el-aside width="300px" class="sidebar">
+                    <el-input
+                            placeholder="请输入搜索内容"
+                            v-model="filterText"
+                            @input="handleFilter"
+                            class="text"
+                    ></el-input>
+                    <el-tree
+                            :data="menuData"
+                            :props="defaultProps"
+                            :filter-node-method="filterNode"
+                            ref="tree"
+                            :default-expand-all="true"
+                            @node-click="handleNodeClick"
+                            class="custom-tree"
+                    ></el-tree>
+                </el-aside>
+                <el-main class="main-content">
+                    <router-view></router-view>
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
 </template>
+
 <script>
-  import {getSelf, getModelList, handleMessage, pullMessage} from "./api"
+    import {getModelTreeData} from "./api"
 
-  export default {
-    components: {},
-    data() {
-      return {
-        selfUser: {},
-        path: "ws://localhost:8080/websocket/1",
-        ws: {}
-      };
-    },
-    computed: {},
-    watch: {},
-    created() {
-    },
-    mounted() {
-      getSelf(null, response => {
-        this.selfUser = response.data;
-      });
-      this.initWs();
-      const IMUI = this.$refs.IMUI;
-      getModelList(null, response => {
-        IMUI.initContacts(response.data);
-      });
-
-      //IMUI.initEmoji(EmojiData);
-      IMUI.initMenus([
-        {
-          name: "messages",
+    export default {
+        data() {
+            return {
+                filterText: '', // 搜索文本  ,
+                menuData: [],
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                }
+            };
         },
-        {
-          name: "contacts",
+        methods: {
+            handleNodeClick(data) {
+                if (data.path) {
+                    if (data.path == 'LLM') {
+                        this.$router.push("/llm");
+                    } else {
+                        this.$router.push("/common");
+                    }
+
+                }
+            },
+            // 过滤树节点的方法
+            filterNode(value, data) {
+                if (!value) return true; // 如果没有搜索文本，显示所有节点
+                return data.label.toLowerCase().includes(value.toLowerCase()); // 不区分大小写的包含检查
+            },
+            handleFilter() {
+                this.$refs.tree.filter(this.filterText);
+            }
         },
-        {
-          name: "custom1",
-          title: "自定义按钮1",
-          unread: 0,
-          render: menu => {
-            return ""//(<i class = "lemon-icon-attah"/>);
-          },
-          renderContainer: () => {
-            return "";
-          },
-          isBottom: true,
+        created() {
+            getModelTreeData(null, resp => {
+                this.menuData = resp.data;
+            });
         }
-      ])
-    },
-    methods: {
-      handlePullMessages(contact, next) {
-        const {IMUI} = this.$refs;
-        let param = {"modelId": contact.id};
-        pullMessage(param, response => {
-          next(response.data, true);
-        })
-
-      },
-
-      handleChangeContact() {
-      },
-      handleSend(message, next, file) {
-        console.log(message);
-        let formData = new FormData();
-        formData.append('file', file);
-        formData.append('text', message.content)
-        formData.append("userId", message.fromUser.id);
-        formData.append("modelId", message.toContactId);
-        handleMessage(formData, response => {
-        });
-        setTimeout(() => {
-          next();
-        }, 1000);
-      },
-
-      initWs() {
-        this.ws = new WebSocket(this.path)
-        this.ws.onopen = () => {
-          console.log('ws连接状态：' + this.ws.readyState);
-          this.ws.send('连接成功');
-        }
-
-        this.ws.onmessage = (data) => {
-          console.log(data.data)
-          const {IMUI} = this.$refs;
-          IMUI.appendMessage(JSON.parse(data.data));
-        }
-        this.ws.onclose = () => {
-          //监听整个过程中websocket的状态
-          console.log('ws连接状态：' + this.ws.readyState);
-        }
-
-        this.ws.onerror = function (error) {
-          console.log(error);
-        }
-      },
-      closeWs() {
-        this.ws.close();
-      }
-    },
-  };
+    };
 </script>
-<style lang="stylus">
-  .slot-group
-    width 170px
-    border-left 1px solid #ddd;
-    height 100%
-    box-sizing border-box
-    padding 10px
 
-    .slot-search
-      margin 5px 0
+<style scoped>
+    .text {
+        padding-bottom: 10px;
+        padding-top: 20px;
+    }
 
-  .slot-group-notice
-    color #999
-    padding 6px 0
-    font-size 12px
+    .sidebar {
+        background-color: rgb(238, 241, 246);
+        color: #333;
+        height: 100%;
+    }
 
-  .slot-group-title
-    font-size 12px
+    .header {
+        background-color: #409EFF;
+        color: #333;
+        line-height: 60px;
+    }
 
-  .slot-group-member
-    font-size 12px
-    line-height 18px
+    /*.custom-tree /deep/ .el-tree-node__content {*/
+    /*    color: #22181c; !* 设置节点文本颜色为黑色 *!*/
+    /*}*/
 
-  .slot-group-menu span
-    display inline-block
-    cursor pointer
-    color #888
-    margin 4px 10px 0 0
-    border-bottom 2px solid transparent;
 
-    &:hover
-      color #000
-      border-color #333
-
-  .slot-contact-fixedtop
-    padding 10px
-    border-bottom 1px solid #ddd
-
-  .slot-search
-    width 100%
-    box-sizing border-box
-    font-size 14px
-    border 1px solid #bbb
-    padding 5px 10px
 </style>

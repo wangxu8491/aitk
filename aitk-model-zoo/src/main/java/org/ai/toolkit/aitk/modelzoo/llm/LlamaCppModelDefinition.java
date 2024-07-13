@@ -36,6 +36,11 @@ public class LlamaCppModelDefinition extends AbstractBaseModelDefinition<LlamaCp
         return String.format(FORMAT, modelName, size);
     }
 
+    @Override
+    public List<String> getModelFileList() {
+        return Arrays.asList(modelPath);
+    }
+
     private List<Param> inferenceParams = new ArrayList<>();
 
     private List<Param> modelParams = new ArrayList<>();

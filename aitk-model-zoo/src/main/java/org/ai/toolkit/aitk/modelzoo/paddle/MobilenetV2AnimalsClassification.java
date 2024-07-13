@@ -31,6 +31,14 @@ public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinitio
     }
 
     @Override
+    public List<String> getModelFileList() {
+        return Arrays.asList(
+                "cv/classification/paddle/animals_classification/animals.zip",
+                "cv/classification/paddle/animals_classification/labelList.txt"
+        );
+    }
+
+    @Override
     public ModelBasicInfo getModelBasicInfo() {
         return new ModelBasicInfo("Paddle7978种动物分类", "");
     }
@@ -53,12 +61,12 @@ public class MobilenetV2AnimalsClassification extends AbstractBaseModelDefinitio
     @Override
     public List<Criteria> getCriteriaList() {
         try {
-            Path modelPath = getModelPath("/cv/classification/paddle/animals_classification/animals.zip");
+            Path modelPath = getModelPath("cv/classification/paddle/animals_classification/animals.zip");
             Criteria<Image, Classifications> criteria =
                     Criteria.builder()
                             .setTypes(Image.class, Classifications.class)
                             .optModelPath(modelPath)
-                            .optEngine("PaddlePaddle").optTranslator(new MobileNetTranslator())
+                            .optEngine("PaddlePaddle").optTranslator(new MobileNetTranslator(modelRepositoryType))
                             .build();
             return Arrays.asList(criteria);
         } catch (Exception e) {

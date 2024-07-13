@@ -13,6 +13,7 @@ import ai.djl.translate.TranslatorContext;
 import ai.djl.util.Utils;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
+import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileInputStream;
@@ -25,10 +26,16 @@ import java.util.List;
 public class MobileNetTranslator implements NoBatchifyTranslator<Image, Classifications> {
     private List<String> classes;
 
+    private ModelRepositoryType modelRepositoryType;
+
+    public MobileNetTranslator(ModelRepositoryType modelRepositoryType) {
+        this.modelRepositoryType = modelRepositoryType;
+    }
+
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         if (classes == null) {
-            classes = Utils.readLines(new FileInputStream(GitUtil.getModelBasePath(GitEnum.GITEE) + "/cv/classification/paddle/animals_classification/labelList.txt"));
+            classes = Utils.readLines(new FileInputStream(GitUtil.getModelBasePath(modelRepositoryType.getDefaultGitEnum()) + "/cv/classification/paddle/animals_classification/labelList.txt"));
         }
     }
 

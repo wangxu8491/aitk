@@ -2,14 +2,17 @@ package org.ai.toolkit.aitk.modelmanager.llm;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
+import org.ai.toolkit.aitk.common.exception.AitkException;
 import org.ai.toolkit.aitk.common.git.GitEnum;
 import org.ai.toolkit.aitk.common.git.GitUtil;
+import org.ai.toolkit.aitk.common.modelscope.DownloadState;
+import org.ai.toolkit.aitk.common.modelscope.FileDownloadUtil;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
 import org.ai.toolkit.aitk.modelzoo.llm.LlamaCppModelDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -22,8 +25,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class LlmBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
@@ -39,17 +42,14 @@ public class LlmBeanDefinitionRegistryPostProcessor implements BeanDefinitionReg
     @Override
     public void setEnvironment(Environment environment) {
         this.defaultGit = GitEnum.getGitEnum(environment.getProperty("model.repository.type"));
-        try {
-            GitUtil.gitClone(defaultGit);
-        } catch (Exception e) {
-            LOGGER.error("gitClone err", e);
+        ConcurrentHashMap<String, DownloadState> resulMap = new ConcurrentHashMap<>();
+        FileDownloadUtil.download(Arrays.asList(DEFINE_FILE_JSON), resulMap, defaultGit);
+        if (!resulMap.containsKey(DEFINE_FILE_JSON)) {
+            throw new AitkException(AitkErrorCode.DOWNLOAD_LLM_JSON_ERROR);
         }
-        try {
-            GitUtil.gitPull(defaultGit);
-        } catch (Exception e) {
-            LOGGER.error("gitpull err", e);
+        if (resulMap.get(DEFINE_FILE_JSON).getThrowable() != null) {
+            throw new AitkException(AitkErrorCode.DOWNLOAD_LLM_JSON_ERROR, resulMap.get(DEFINE_FILE_JSON).getThrowable());
         }
-
     }
 
     @Override
@@ -67,7 +67,7 @@ public class LlmBeanDefinitionRegistryPostProcessor implements BeanDefinitionReg
                             beanDefinitionBuilder.addConstructorArgValue(llmModelDefine.getName())
                                     .addConstructorArgValue(modelDetail.getName())
                                     .addConstructorArgValue(modelDetail.getPath())
-                                    .addConstructorArgValue(new ModelBasicInfo(llmModelDefine.getName(),llmModelDefine.getDescription()));
+                                    .addConstructorArgValue(new ModelBasicInfo(llmModelDefine.getName(), llmModelDefine.getDescription()));
                             BeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
                             beanDefinitionRegistry.registerBeanDefinition(String.format(FORMAT, llmModelDefine.getName(), modelDetail.getName()), beanDefinition);
                         }

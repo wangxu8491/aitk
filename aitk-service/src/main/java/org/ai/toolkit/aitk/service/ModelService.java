@@ -1,19 +1,22 @@
 package org.ai.toolkit.aitk.service;
 
 import ai.djl.modality.Input;
+
 import java.util.List;
-import org.ai.toolkit.aitk.service.vo.ModelAsContactVO;
+
+import ai.djl.modality.Output;
 import org.ai.toolkit.aitk.modelzoo.executor.InferenceCallback;
 import org.ai.toolkit.aitk.service.vo.ModelParamVO;
+import org.ai.toolkit.aitk.service.vo.ModelNodeDataVO;
 
 public interface ModelService {
 
-    List<ModelAsContactVO> getAllModels();
 
-    void predict(String modelId, Input input, InferenceCallback callback);
+    void asyncPredict(String modelId, Input input, InferenceCallback callback);
+
+    Output syncPredict(String modelId, Input input);
 
     ModelParamVO getModelParamVO(String modelId);
 
-    ModelAsContactVO getModelAsContactVO(String modelId);
-
+    List<ModelNodeDataVO> getModelTreeData();
 }

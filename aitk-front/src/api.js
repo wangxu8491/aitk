@@ -1,8 +1,8 @@
 import axios from "axios";
 import {Message, Notification} from "element-ui";
 
-export function getModelList(param, successCallback) {
-  return axios.post("/im/getModelList", param).then(
+export function getModelTreeData(param, successCallback) {
+  return axios.post("/aitk/getModelTreeData", param).then(
       response => handleBizError(response, successCallback)).catch(
       handleError);
 }

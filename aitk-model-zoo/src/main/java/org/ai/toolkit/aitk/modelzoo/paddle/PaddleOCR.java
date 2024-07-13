@@ -11,6 +11,9 @@ import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
+import ai.djl.paddlepaddle.zoo.cv.imageclassification.PpWordRotateTranslatorFactory;
+import ai.djl.paddlepaddle.zoo.cv.objectdetection.PpWordDetectionTranslatorFactory;
+import ai.djl.paddlepaddle.zoo.cv.wordrecognition.PpWordRecognitionTranslatorFactory;
 import ai.djl.repository.zoo.Criteria;
 import org.ai.toolkit.aitk.modelzoo.AbstractBaseModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.bean.ModelBasicInfo;
@@ -32,6 +35,22 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
     @Override
     public String getId() {
         return "cv/ocr/paddleOCR";
+    }
+
+    @Override
+    public List<String> getModelFileList() {
+        return Arrays.asList(
+                "cv/ocr/paddle/word_detection/inference.pdiparams",
+                "cv/ocr/paddle/word_detection/inference.pdiparams.info",
+                "cv/ocr/paddle/word_detection/inference.pdmodel",
+                "cv/ocr/paddle/word_recognition/inference.pdiparams",
+                "cv/ocr/paddle/word_recognition/inference.pdiparams.info",
+                "cv/ocr/paddle/word_recognition/inference.pdmodel",
+                "cv/ocr/paddle/word_recognition/ppocr_keys_v1.txt",
+                "cv/ocr/paddle/word_rotation/inference.pdiparams",
+                "cv/ocr/paddle/word_rotation/inference.pdiparams.info",
+                "cv/ocr/paddle/word_rotation/inference.pdmodel"
+        );
     }
 
     @Override
@@ -76,22 +95,22 @@ public class PaddleOCR extends AbstractBaseModelDefinition<Image, DetectedObject
         Criteria<Image, DetectedObjects> criteriaDetection =
                 Criteria.builder()
                         .setTypes(Image.class, DetectedObjects.class)
-                        .optArtifactId("ai.djl.paddlepaddle:word_detection")
-                        .optFilter("flavor", "mobile")
+                        .optModelPath(getModelPath("cv/ocr/paddle/word_detection"))
+                        .optTranslatorFactory(new PpWordDetectionTranslatorFactory())
                         .build();
 
         Criteria<Image, String> criteriaRecognition =
                 Criteria.builder()
                         .setTypes(Image.class, String.class)
-                        .optArtifactId("ai.djl.paddlepaddle:word_recognition")
-                        .optFilter("flavor", "mobile")
+                        .optModelPath(getModelPath("cv/ocr/paddle/word_recognition"))
+                        .optTranslatorFactory(new PpWordRecognitionTranslatorFactory())
                         .build();
 
         Criteria<Image, Classifications> criteriaRotation =
                 Criteria.builder()
                         .setTypes(Image.class, Classifications.class)
-                        .optArtifactId("ai.djl.paddlepaddle:word_rotation")
-                        .optFilter("flavor", "mobile")
+                        .optTranslatorFactory(new PpWordRotateTranslatorFactory())
+                        .optModelPath(getModelPath("cv/ocr/paddle/word_rotation"))
                         .build();
         return Arrays.asList(criteriaDetection, criteriaRecognition, criteriaRotation);
     }
