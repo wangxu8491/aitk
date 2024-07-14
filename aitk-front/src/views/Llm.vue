@@ -109,7 +109,8 @@
                 if (this.newMessage.trim()) {
                     const htmlContent = this.md.render(this.newMessage);
                     this.messages.push({historyMsg:this.newMessage,text: htmlContent, self: true});
-                    const context = this.messages.map(msg => `(${msg.historyMsg}`).join("");
+                    const context = this.messages.map(msg => `${msg.historyMsg}`).join("");
+                    console.log(context)
                     let formData = new FormData();
                     formData.append('modelId', this.selectedModel);
                     formData.append("text", context);
