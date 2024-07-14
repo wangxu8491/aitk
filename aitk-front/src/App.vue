@@ -48,9 +48,9 @@
             handleNodeClick(data) {
                 if (data.path) {
                     if (data.path == 'LLM') {
-                        this.$router.push("/llm");
+                        this.$router.push({path:"/llm", query:{id:data.id,path:data.path,label:data.label}});
                     } else {
-                        this.$router.push("/common");
+                        this.$router.push({path:"/common", query:{id:data.id,path:data.path,label:data.label}});
                     }
 
                 }
@@ -73,26 +73,87 @@
 </script>
 
 <style scoped>
-    .text {
-        padding-bottom: 10px;
-        padding-top: 20px;
+    html, body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
     }
 
-    .sidebar {
-        background-color: rgb(238, 241, 246);
-        color: #333;
+    #app {
         height: 100%;
+        background: radial-gradient(circle at center, #303030 0%, #141414 100%);
+        /* 金属黑渐变背景 */
     }
 
     .header {
-        background-color: #409EFF;
-        color: #333;
+        background-color: #222831; /* 深邃金属黑 */
+        color: #C5C5C5; /* 亮银灰文字 */
         line-height: 60px;
+        padding: 0 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 添加轻微阴影，增强立体感 */
     }
 
-    /*.custom-tree /deep/ .el-tree-node__content {*/
-    /*    color: #22181c; !* 设置节点文本颜色为黑色 *!*/
-    /*}*/
+    .main-content {
+        background: linear-gradient(to bottom, #4A4A4A, #222831); /* 从浅灰色渐变到深金属黑 */
+        padding: 20px;
+        border-radius: 10px;
+        overflow-y: auto;
+    }
 
+    .sidebar {
+        background-color: #333333; /* 调整为稍浅的金属黑 */
+        color: #C5C5C5;
+        padding: 20px;
+        border-right: 1px solid #141414;
+        border-radius: 10px 0 0 10px;
+        overflow-y: auto;
+    }
 
+    /* 可选：增加鼠标悬停在侧边栏菜单项时的反馈效果 */
+    .el-tree-node__content:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .el-tree-node__content:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* 输入框和按钮样式调整，以适应金属黑主题 */
+    .el-input__inner {
+        background-color: #272727;
+        color: #C5C5C5;
+        border-color: #3A3A3A;
+    }
+
+    .el-button--primary {
+        background-color: #4CAF50; /* 绿色按钮，与金属黑形成对比 */
+        border-color: #4CAF50;
+        color: #fff;
+    }
+
+    .el-button--primary:hover {
+        background-color: #45a049;
+        border-color: #45a049;
+    }
+
+    /* 添加样式以在输入框和树之间创建间距 */
+    .text {
+        margin-bottom: 10px; /* 在输入框下方添加间距 */
+    }
+
+    /* 为输入框和树形控件添加圆角 */
+    .el-input__inner {
+        border-radius: 5px; /* 输入框圆角 */
+    }
+
+    .el-tree {
+        border-radius: 5px; /* 树形控件容器圆角 */
+    }
+
+    /* 可选：为树形控件的根节点添加内边距，避免内容紧贴边缘 */
+    .el-tree::before {
+        content: '';
+        display: block;
+        padding-top: 10px; /* 或根据实际情况调整 */
+    }
 </style>

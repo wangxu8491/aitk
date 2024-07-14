@@ -7,20 +7,14 @@ export function getModelTreeData(param, successCallback) {
       handleError);
 }
 
-export function getSelf(param, successCallback) {
-  return axios.post("/im/getSelf", param).then(
-      response => handleBizError(response, successCallback)).catch(
-      handleError);
-}
-
 export function handleMessage(param, successCallback) {
-  return axios.post("/im/handleMessage", param).then(
+  return axios.post("/aitk/handleMessage", param).then(
       response => handleBizError(response, successCallback)).catch(
       handleError);
 }
 
-export function pullMessage(param, successCallback) {
-  return axios.get("/im/pullMessage", {params: param}).then(
+export function getLllModelVOByModelName(param, successCallback) {
+  return axios.get("/aitk/getLllModelVOByModelName", {params: param}).then(
       response => handleBizError(response, successCallback)).catch(handleError);
 }
 

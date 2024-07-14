@@ -44,7 +44,7 @@ public class FileDownloadUtil {
                 HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 long contentLength = response.headers().firstValue("Content-Length").map(Long::parseLong).orElse(-1L);
                 inputStream = response.body();
-                byte[] buf = new byte[4096];
+                byte[] buf = new byte[10240];
                 int length = 0;
                 if (contentLength <= 0) {
                     progressMap.put(file, new DownloadState(new RuntimeException("File path error, unable to download")));

@@ -3,6 +3,7 @@ package org.ai.toolkit.aitk.service.impl;
 import ai.djl.modality.Input;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import ai.djl.modality.Output;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelParentTypeEnum;
@@ -11,7 +12,9 @@ import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
 import org.ai.toolkit.aitk.modelzoo.executor.InferenceCallback;
 import org.ai.toolkit.aitk.modelmanager.ModelManager;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
+import org.ai.toolkit.aitk.modelzoo.llm.LlamaCppModelDefinition;
 import org.ai.toolkit.aitk.service.ModelService;
+import org.ai.toolkit.aitk.service.vo.LlmModelVO;
 import org.ai.toolkit.aitk.service.vo.ModelParamVO;
 import org.ai.toolkit.aitk.service.vo.ModelNodeDataVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +94,15 @@ public class ModelServiceImpl implements ModelService {
             result.add(modelNodeDataVO);
         }
         return result;
+    }
+
+    @Override
+    public List<LlmModelVO> getLllModelVOByModelName(String modelName) {
+        List<LlmModelVO> llmModelVOList = modelManager.getModelList().stream().filter(o -> o instanceof LlamaCppModelDefinition)
+                .map(o -> (LlamaCppModelDefinition) o)
+                .filter(o -> o.getModelName().equals(modelName)).map(o -> new LlmModelVO(o.getId(), o.getSize())).collect(Collectors.toList());
+
+        return llmModelVOList;
     }
 
 }

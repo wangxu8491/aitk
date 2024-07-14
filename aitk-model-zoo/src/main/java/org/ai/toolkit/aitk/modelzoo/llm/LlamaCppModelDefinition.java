@@ -143,4 +143,12 @@ public class LlamaCppModelDefinition extends AbstractBaseModelDefinition<LlamaCp
     public List<Param> getLoadModelParams() {
         return modelParams;
     }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public String getSize() {
+        return size;
+    }
 }
