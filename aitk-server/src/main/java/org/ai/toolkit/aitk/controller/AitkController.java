@@ -11,6 +11,7 @@ import org.ai.toolkit.aitk.modelzoo.constant.IOTypeEnum;
 import org.ai.toolkit.aitk.modelzoo.llm.IteratorLlamaCppSupplier;
 import org.ai.toolkit.aitk.service.ModelService;
 import org.ai.toolkit.aitk.service.vo.LlmModelVO;
+import org.ai.toolkit.aitk.service.vo.ModelLoadVO;
 import org.ai.toolkit.aitk.service.vo.ModelNodeDataVO;
 import org.ai.toolkit.aitk.service.vo.ModelParamVO;
 import org.ai.toolkit.aitk.vo.ResultVO;
@@ -49,6 +50,16 @@ public class AitkController {
     @RequestMapping("/getLllModelVOByModelName")
     public ResultVO<List<LlmModelVO>> getLllModelVOByModelName(@RequestParam(name = "modelName", required = true) String modelName) {
         return ResultVO.createSuccessResultVO(modelService.getLllModelVOByModelName(modelName));
+    }
+
+    @RequestMapping("/getModelStateByModelId")
+    public ResultVO<ModelLoadVO> getModelStateByModelId(@RequestParam(name = "modelId", required = true) String modelId) {
+        return ResultVO.createSuccessResultVO(modelService.getModelStateByModelId(modelId));
+    }
+
+    @RequestMapping("/startLoad")
+    public ResultVO<Boolean> startLoad(@RequestParam(name = "modelId", required = true) String modelId) {
+        return ResultVO.createSuccessResultVO(modelService.startLoad(modelId));
     }
 
 

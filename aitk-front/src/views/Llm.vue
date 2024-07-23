@@ -1,16 +1,17 @@
 <template>
     <div class="chat-wrap">
-        <div style="margin-bottom: 10px;">
-            <span style="color: white">选择模型：</span>
-            <el-select v-model="selectedModel" placeholder="请选择">
-                <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                </el-option>
-            </el-select>
-        </div>
+      <div style="display: flex; align-items: center; margin-bottom: 10px;">
+        <span style="color: white">选择模型：</span>
+        <el-select v-model="selectedModel" placeholder="请选择" style="flex: none;max-width: 200px;">
+          <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+          </el-option>
+        </el-select>
+        <model-loader :modelName="selectedModel" ref="modelLoadRef" style="margin-left: 10px"/>
+      </div>
         <div class="chat-container" style="background-color: #000; color: #fff;">
             <el-row>
                 <el-col :span="24">
@@ -106,6 +107,10 @@
             },
 
             sendMessage() {
+                if(!this.$refs.modelLoadRef.isModelLoad()){
+                  this.$message('模型正在加载中，请再完成加载后重试...');
+                  return
+                }
                 if (this.newMessage.trim()) {
                     const htmlContent = this.md.render(this.newMessage);
                     this.messages.push({historyMsg:this.newMessage,text: htmlContent, self: true});

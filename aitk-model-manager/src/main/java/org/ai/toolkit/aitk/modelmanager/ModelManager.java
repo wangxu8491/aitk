@@ -11,12 +11,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
+import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.modelscope.DownloadState;
 import org.ai.toolkit.aitk.common.modelscope.FileDownloadUtil;
 import org.ai.toolkit.aitk.modelzoo.ModelDefinition;
 import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
@@ -49,6 +52,21 @@ public class ModelManager implements InitializingBean {
 
     public List<ModelDefinition> getModelList() {
         return modelList;
+    }
+
+    public boolean isExist(String modelId) {
+        return ALL_MODEL_MAPPING.containsKey(modelId);
+    }
+
+    public boolean isLoaded(String modelId) {
+        return ONLINE_MODEL_MAPPING.containsKey(modelId);
+    }
+
+    public ModelDefinition getModelDefinition(String modelId) {
+        if (!ALL_MODEL_MAPPING.containsKey(modelId)) {
+            throw new AitkException(AitkErrorCode.KNOWN_ERROR, "model does not exist");
+        }
+        return ALL_MODEL_MAPPING.get(modelId);
     }
 
     public ModelDefinition getOnlineModelDefinition(String modelId) {
@@ -104,6 +122,7 @@ public class ModelManager implements InitializingBean {
                     ONLINE_MODEL_MAPPING.put(modelId, list);
                 }
             } catch (Exception e) {
+                unregisterWorkerPool(modelInfo);
                 LOGGER.error("loadModel", e);
                 throw new AitkException(AitkErrorCode.MODEL_LOAD_ERROR, e);
             }
@@ -116,6 +135,14 @@ public class ModelManager implements InitializingBean {
         }
         List<ModelInfo> modelInfoList = ONLINE_MODEL_MAPPING.get(modelId);
         for (ModelInfo modelInfo : modelInfoList) {
+            unregisterWorkerPool(modelInfo);
+        }
+        ONLINE_MODEL_MAPPING.remove(modelId);
+
+    }
+
+    private void unregisterWorkerPool(ModelInfo modelInfo) {
+        try {
             Map<Device, ZooModel> models = modelInfo.getModels();
             if (!CollectionUtils.isEmpty(models)) {
                 for (Model m : models.values()) {
@@ -124,9 +151,9 @@ public class ModelManager implements InitializingBean {
                 models.clear();
             }
             workLoadManager.unregisterWorkerPool(modelInfo);
+        } catch (Exception e) {
+            LOGGER.error("unregister error", e);
         }
-        ONLINE_MODEL_MAPPING.remove(modelId);
-
     }
 
     @Override
@@ -138,8 +165,13 @@ public class ModelManager implements InitializingBean {
             if (ALL_MODEL_MAPPING.containsKey(modelDefinition.getId())) {
                 throw new AitkException(AitkErrorCode.KNOWN_ERROR, "modelId is duplicate");
             }
+            //FileDownloadUtil.download(modelDefinition.getModelFileList(), new ConcurrentHashMap<>(), GitEnum.MODELSCOPE);
             ALL_MODEL_MAPPING.put(modelDefinition.getId(), modelDefinition);
-            loadModel(modelDefinition.getId(), Device.cpu(), null);
+            try {
+                loadModel(modelDefinition.getId(), Device.cpu(), null);
+            } catch (Exception e) {
+                LOGGER.error("loadModel init", e);
+            }
         }
     }
 

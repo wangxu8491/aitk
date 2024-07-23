@@ -18,6 +18,18 @@ export function getLllModelVOByModelName(param, successCallback) {
       response => handleBizError(response, successCallback)).catch(handleError);
 }
 
+export function startLoad(param, successCallback) {
+  return axios.post("/aitk/startLoad", param).then(
+      response => handleBizError(response, successCallback)).catch(
+      handleError);
+}
+
+export function getModelStateByModelId(param, successCallback) {
+  return axios.post("/aitk/getModelStateByModelId", param).then(
+      response => handleBizError(response, successCallback)).catch(
+      handleError);
+}
+
 function handleBizError(response, successCallback) {
   successCallback(response.data);
 }
