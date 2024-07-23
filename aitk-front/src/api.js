@@ -30,6 +30,12 @@ export function getModelStateByModelId(param, successCallback) {
       handleError);
 }
 
+export function unloadModel(param, successCallback) {
+  return axios.post("/aitk/unloadModel", param).then(
+      response => handleBizError(response, successCallback)).catch(
+      handleError);
+}
+
 function handleBizError(response, successCallback) {
   successCallback(response.data);
 }

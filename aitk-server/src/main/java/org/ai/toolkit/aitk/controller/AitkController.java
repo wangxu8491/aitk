@@ -62,6 +62,11 @@ public class AitkController {
         return ResultVO.createSuccessResultVO(modelService.startLoad(modelId));
     }
 
+    @RequestMapping("/unloadModel")
+    public ResultVO<Boolean> unloadModel(@RequestParam(name = "modelId", required = true) String modelId) {
+        return ResultVO.createSuccessResultVO(modelService.unloadModel(modelId));
+    }
+
 
     @RequestMapping("handleMessage")
     public void handleMessage(MultipartHttpServletRequest request) throws IOException {

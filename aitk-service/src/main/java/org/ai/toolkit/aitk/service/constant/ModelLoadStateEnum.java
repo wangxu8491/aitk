@@ -22,9 +22,14 @@ public enum ModelLoadStateEnum {
     SUCCESS(10),
 
     /**
+     * 卸载中
+     */
+    UNLOADING(20),
+
+    /**
      * 不存在
      */
-    NONE(11);
+    NONE(100);
 
     private final int value;
 

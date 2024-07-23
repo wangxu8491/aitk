@@ -1,7 +1,7 @@
 <template>
   <div class="button-progress-container">
-    <el-button :disabled="loading || loadingAndProcessing" @click="handleModelLoad">
-      {{ modelStateText }}<i class="el-icon-refresh" v-if="modelLoaded"></i>
+    <el-button :disabled="loading || loadingAndProcessing || unloading" @click="handleModelLoad">
+      {{ modelStateText }}
     </el-button>
     <div v-if="loading" class="progress-right">
       <el-progress :percentage="progress" type="line"></el-progress>
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import {getModelStateByModelId, startLoad} from "../api"
+import {getModelStateByModelId, startLoad, unloadModel} from "../api"
 
 export default {
   name: 'ModelLoader',
@@ -27,6 +27,7 @@ export default {
       loadingAndProcessing: true,
       progress: 0,
       intervalId: null, // 存储轮询定时器ID
+      unloading: false,
     };
   },
   computed: {
@@ -36,8 +37,10 @@ export default {
       } else if (this.loadingAndProcessing) {
         return '正在加载..';
       } else if (this.modelLoaded) {
-        return '加载完成';
-      } else {
+        return '卸载模型';
+      } else if (this.unloading) {
+        return '正在卸载..';
+      }else {
         return '待加载';
       }
     }
@@ -55,24 +58,41 @@ export default {
       return this.modelLoaded;
     },
     handleModelLoad() {
-      this.$confirm('是否确定重新下载后加载模型?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.modelLoaded = false;
-        this.startModelLoadProcess();
-      }).catch(() => {});
+      if(this.modelLoaded) {
+        this.$confirm('是否确定卸载模型?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.modelLoaded = false;
+          this.unloadModelProcess();
+        }).catch(() => {});
+      } else {
+        this.$confirm('是否确定下载和加载模型?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.modelLoaded = false;
+          this.startModelLoadProcess();
+        }).catch(() => {});
+      }
     },
     startModelLoadProcess() {
       this.loading = true;
       this.progress = 0;
       this.startReload();
     },
+    unloadModelProcess() {
+      this.loading = false;
+      this.progress = 0;
+      this.unloading = true;
+      this.startUnload();
+    },
     pollModelStatus() {
       this.fetchModelStatus()
           .then(() => {
-            if ((this.loading || this.loadingAndProcessing) && !this.modelLoaded) {
+            if ((this.loading || this.loadingAndProcessing || this.unloading) && !this.modelLoaded) {
               // 如果模型还在下载或加载中，继续轮询
               this.intervalId = setTimeout(() => {
                 this.pollModelStatus();
@@ -94,6 +114,7 @@ export default {
         if (modelStatus.state === 0) {
           this.loading = false;
           this.modelLoaded = false;
+          this.unloading = false;
           this.loadingAndProcessing = false;
         } else if (modelStatus.state === 1) {
           this.loading = true;
@@ -110,7 +131,23 @@ export default {
           clearTimeout(this.intervalId);
           this.intervalId = null;
           this.completeModelLoad();
+        } else if (modelStatus.state === 20) {
+          this.loading = false;
+          this.modelLoaded = false;
+          this.unloading = true;
+          this.loadingAndProcessing = false;
         }
+      });
+    },
+    startUnload() {
+      if(!this.modelName) {
+        return
+      }
+      let formData = new FormData();
+      formData.append('modelId', this.modelName);
+      unloadModel(formData, response => {
+        this.modelLoaded = false;
+        this.pollModelStatus();
       });
     },
     startReload() {

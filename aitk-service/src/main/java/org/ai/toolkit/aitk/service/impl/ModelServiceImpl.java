@@ -194,4 +194,20 @@ public class ModelServiceImpl implements ModelService {
         return true;
     }
 
+    @Override
+    public boolean unloadModel(String modelId) {
+        ModelLoadVO modelLoadVO = new ModelLoadVO();
+        modelLoadVO.setState(ModelLoadStateEnum.UNLOADING.getValue());
+        modelLoadMap.put(modelId, modelLoadVO);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                modelManager.unloadModel(modelId);
+                // 卸载完成变成待加载状态
+                modelLoadMap.get(modelId).setState(ModelLoadStateEnum.PENDING.getValue());
+            }
+        });
+        return true;
+    }
+
 }

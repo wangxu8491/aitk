@@ -108,7 +108,7 @@
 
             sendMessage() {
                 if(!this.$refs.modelLoadRef.isModelLoad()){
-                  this.$message('模型正在加载中，请再完成加载后重试...');
+                  this.$message('模型待加载或正在加载中，请在完成加载后重试...');
                   return
                 }
                 if (this.newMessage.trim()) {

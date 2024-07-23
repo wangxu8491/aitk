@@ -26,4 +26,6 @@ public interface ModelService {
     ModelLoadVO getModelStateByModelId(String modelId);
 
     boolean startLoad(String modelId);
+
+    boolean unloadModel(String modelId);
 }
