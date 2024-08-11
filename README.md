@@ -109,4 +109,5 @@
     - [ ] ... 
   - [ ] 多模态模型
 
-  
+ ## 5. 相关资源
+-  modelscope：https://www.modelscope.cn/AITK/modelzoo.git
