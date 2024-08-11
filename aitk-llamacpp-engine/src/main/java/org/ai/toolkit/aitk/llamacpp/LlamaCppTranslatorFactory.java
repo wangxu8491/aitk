@@ -19,7 +19,6 @@ public class LlamaCppTranslatorFactory implements TranslatorFactory, Serializabl
     private static final Set<Pair<Type, Type>> SUPPORTED_TYPES = new HashSet<>();
 
     static {
-        SUPPORTED_TYPES.add(new Pair<>(LlamaCppInput.class, Object.class));
     }
 
     @Override

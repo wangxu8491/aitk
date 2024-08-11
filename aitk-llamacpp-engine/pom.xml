@@ -15,10 +15,9 @@
             <groupId>ai.djl</groupId>
             <artifactId>api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.kherud</groupId>
-            <artifactId>llama</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>de.kherud</groupId>-->
+<!--            <artifactId>llama</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
-
 </project>

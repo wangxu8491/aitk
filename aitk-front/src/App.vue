@@ -23,7 +23,7 @@
                     ></el-tree>
                 </el-aside>
                 <el-main class="main-content">
-                    <router-view></router-view>
+                    <router-view :key="routeKey"></router-view>
                 </el-main>
             </el-container>
         </el-container>
@@ -38,6 +38,7 @@
             return {
                 filterText: '', // 搜索文本  ,
                 menuData: [],
+                routeKey: 0,
                 defaultProps: {
                     children: 'children',
                     label: 'label'
@@ -47,6 +48,7 @@
         methods: {
             handleNodeClick(data) {
                 if (data.path) {
+                    this.routeKey++;
                     if (data.path == 'LLM') {
                         this.$router.push({path:"/llm", query:{id:data.id,path:data.path,label:data.label}});
                     } else {
@@ -68,6 +70,11 @@
             getModelTreeData(null, resp => {
                 this.menuData = resp.data;
             });
+        },
+        watch: {
+            '$route': function(to, from) {
+                this.routeKey++;
+            }
         }
     };
 </script>

@@ -3,6 +3,7 @@ package org.ai.toolkit.aitk.service.impl;
 import ai.djl.Device;
 import ai.djl.modality.Input;
 
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -10,8 +11,10 @@ import java.util.stream.IntStream;
 
 import ai.djl.modality.Output;
 import org.ai.toolkit.aitk.common.git.GitEnum;
+import org.ai.toolkit.aitk.common.git.GitUtil;
 import org.ai.toolkit.aitk.common.modelscope.DownloadState;
 import org.ai.toolkit.aitk.common.modelscope.FileDownloadUtil;
+import org.ai.toolkit.aitk.modelzoo.ModelRepositoryType;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelParentTypeEnum;
 import org.ai.toolkit.aitk.modelzoo.constant.ModelTypeEnum;
 import org.ai.toolkit.aitk.modelzoo.executor.InferenceExecutor;
@@ -41,8 +44,10 @@ public class ModelServiceImpl implements ModelService {
     private ModelManager modelManager;
     @Autowired
     private InferenceExecutor inferenceExecutor;
+    @Autowired
+    private ModelRepositoryType modelRepositoryType;
 
-    private final Map<String, ModelLoadVO> modelLoadMap = new HashMap<>();
+    private final Map<String, ModelLoadVO> modelLoadMap = new ConcurrentHashMap<>();
 
     private ThreadFactory threadFactory = new AitkThreadFactory("model-load-pool-");
 
@@ -82,7 +87,16 @@ public class ModelServiceImpl implements ModelService {
             return new ArrayList<>();
         }
         Map<ModelTypeEnum, List<ModelDefinition>> modelTypeEnumListMap = new HashMap<>();
+        Set<String> llmModelNameSet = new HashSet<>();
         for (ModelDefinition modelDefinition : modelDefinitionList) {
+            if (modelDefinition instanceof LlamaCppModelDefinition) {
+                if (llmModelNameSet.contains(((LlamaCppModelDefinition) modelDefinition).getModelName())) {
+                    continue;
+                } else {
+                    llmModelNameSet.add(((LlamaCppModelDefinition) modelDefinition).getModelName());
+                }
+            }
+
             if (modelTypeEnumListMap.containsKey(modelDefinition.getModelType())) {
                 modelTypeEnumListMap.get(modelDefinition.getModelType()).add(modelDefinition);
             } else {
@@ -170,15 +184,26 @@ public class ModelServiceImpl implements ModelService {
             public void run() {
                 // 先卸载
                 modelManager.unloadModel(modelId);
-
-                // 下载
-                modelLoadMap.get(modelId).setState(ModelLoadStateEnum.DOWNLOAD.getValue());
-                ConcurrentHashMap progressMap = new ConcurrentHashMap<String, DownloadState>();
-                modelLoadMap.get(modelId).setProgressMap(progressMap);
-                try {
-                    FileDownloadUtil.download(modelDefinition.getModelFileList(), progressMap, GitEnum.MODELSCOPE);
-                } catch (Exception e) {
-                    LOGGER.error("downloadModel", e);
+                GitEnum gitEnum = modelRepositoryType.getDefaultGitEnum();
+                boolean isDownLoad = true;
+                List<String> fileList = modelDefinition.getModelFileList();
+                for (String file : fileList) {
+                    String filePath = file.startsWith("/") ? GitUtil.getModelBasePath(gitEnum) + file : GitUtil.getModelBasePath(gitEnum) + "/" + file;
+                    if (!Paths.get(filePath).toFile().exists()) {
+                        isDownLoad = false;
+                        break;
+                    }
+                }
+                if (!isDownLoad){
+                    // 下载
+                    modelLoadMap.get(modelId).setState(ModelLoadStateEnum.DOWNLOAD.getValue());
+                    ConcurrentHashMap progressMap = new ConcurrentHashMap<String, DownloadState>();
+                    modelLoadMap.get(modelId).setProgressMap(progressMap);
+                    try {
+                        FileDownloadUtil.download(modelDefinition.getModelFileList(), progressMap, gitEnum);
+                    } catch (Exception e) {
+                        LOGGER.error("downloadModel", e);
+                    }
                 }
                 // 加载
                 modelLoadMap.get(modelId).setState(ModelLoadStateEnum.LOADING.getValue());

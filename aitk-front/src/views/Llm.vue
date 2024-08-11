@@ -114,14 +114,12 @@
                 if (this.newMessage.trim()) {
                     const htmlContent = this.md.render(this.newMessage);
                     this.messages.push({historyMsg:this.newMessage,text: htmlContent, self: true});
-                    const context = this.messages.map(msg => `${msg.historyMsg}`).join("");
+                    const context = this.messages.map(msg => `${msg.historyMsg}`).join("\n");
+                    const chat ={"stream":true,"temperature":0.7,"prompt":context}
                     console.log(context)
                     let formData = new FormData();
                     formData.append('modelId', this.selectedModel);
-                    formData.append("text", context);
-                    formData.append("temperature",0.6);
-                    formData.append("stop","[\"<|im_start|>\", \"<|im_end|>\"]");
-                    formData.append("use_chat_template",true);
+                    formData.append("text", JSON.stringify(chat));
                     handleMessage(formData, response => {
                     });
                     this.newMessage = ''; // 清空输入框
@@ -131,17 +129,21 @@
             renderMarkdown(text) {
                 return this.md.render(text);
             },
-            // 假设这是从服务器接收到消息的模拟方法
             receiveMessage(message) {
+                if (message.text.length == 0){
+                    return;
+                }
+                const json = JSON.parse(message.text.replace("data:",""));
+                console.log(json);
                 const messageToUpdate = this.messages.find(msg => msg.id != null && msg.id === message.id);
                 if (messageToUpdate) {
-                    messageToUpdate.historyMsg = messageToUpdate.historyMsg + message.text;
+                    messageToUpdate.historyMsg = messageToUpdate.historyMsg +json.content;
                     messageToUpdate.text = this.renderMarkdown(messageToUpdate.historyMsg);
                 } else {
                     this.messages.push({
                         id: message.id,
-                        historyMsg: message.text,
-                        text: this.renderMarkdown(message.text),
+                        historyMsg: json.content,
+                        text: this.renderMarkdown(json.content),
                         self: false
                     });
                 }

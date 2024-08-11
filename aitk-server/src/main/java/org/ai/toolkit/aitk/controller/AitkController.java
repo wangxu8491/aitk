@@ -5,10 +5,9 @@ import ai.djl.ndarray.BytesSupplier;
 import com.google.gson.Gson;
 import org.ai.toolkit.aitk.common.errorcode.AitkErrorCode;
 import org.ai.toolkit.aitk.common.exception.AitkException;
-import org.ai.toolkit.aitk.modelmanager.ModelManager;
 import org.ai.toolkit.aitk.modelzoo.bean.Param;
 import org.ai.toolkit.aitk.modelzoo.constant.IOTypeEnum;
-import org.ai.toolkit.aitk.modelzoo.llm.IteratorLlamaCppSupplier;
+import org.ai.toolkit.aitk.modelzoo.llm.LlamaCppSupplier;
 import org.ai.toolkit.aitk.service.ModelService;
 import org.ai.toolkit.aitk.service.vo.LlmModelVO;
 import org.ai.toolkit.aitk.service.vo.ModelLoadVO;
@@ -26,7 +25,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.annotation.Resource;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 @RequestMapping("/aitk")
@@ -79,7 +81,7 @@ public class AitkController {
         List<Param> requestParams = modelParamVO.getRequestParams();
         Input input = new Input();
         for (Param param : requestParams) {
-            if (null==request.getParameter(param.getName())){
+            if (null == request.getParameter(param.getName())) {
                 continue;
             }
             if (IOTypeEnum.TEXT.equals(param.getFileExtension().getFileType())) {
@@ -97,15 +99,23 @@ public class AitkController {
             for (Param param : responseParams) {
                 if (IOTypeEnum.STREAM.equals(param.getFileExtension().getFileType())) {
                     BytesSupplier bytesSupplier = output.get(param.getName());
-                    if (bytesSupplier instanceof IteratorLlamaCppSupplier) {
-                        IteratorLlamaCppSupplier iteratorLlamaCppSupplier = (IteratorLlamaCppSupplier) bytesSupplier;
-                        String msgId = UUID.randomUUID().toString();
-                        while (iteratorLlamaCppSupplier.hasNext()) {
-                            Map<String, Object> result = new HashMap<>();
-                            result.put("id", msgId);
-                            result.put("text", iteratorLlamaCppSupplier.next().text);
-                            Gson gson = new Gson();
-                            webSocketManager.sendMessage(String.valueOf(1), gson.toJson(result));
+                    if (bytesSupplier instanceof LlamaCppSupplier) {
+                        try {
+                            LlamaCppSupplier llamaCppSupplier = (LlamaCppSupplier) bytesSupplier;
+                            String msgId = UUID.randomUUID().toString();
+                            InputStream responseBody = llamaCppSupplier.getHttpResponse().body();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody));
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                Map<String, Object> result = new HashMap<>();
+                                result.put("id", msgId);
+                                result.put("text", line);
+                                webSocketManager.sendMessage(String.valueOf(1), new Gson().toJson(result));
+                            }
+                            reader.close();
+                            responseBody.close();
+                        } catch (Exception e) {
+                            LOGGER.error("Model execution encountered an exception", e);
                         }
                     }
                 } else {

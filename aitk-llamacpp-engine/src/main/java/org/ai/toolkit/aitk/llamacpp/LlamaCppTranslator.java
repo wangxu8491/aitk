@@ -3,34 +3,37 @@ package org.ai.toolkit.aitk.llamacpp;
 import ai.djl.ndarray.NDList;
 import ai.djl.translate.NoBatchifyTranslator;
 import ai.djl.translate.TranslatorContext;
-import de.kherud.llama.LlamaModel;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public class LlamaCppTranslator<I, O> implements NoBatchifyTranslator<I, O> {
 
-    private Map<String, Method> methodMap = new HashMap<>();
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMillis(100000))
+            .build();
+
+    private static final String URL_FORMAT = "http://127.0.0.1:%s/completion";
 
     @Override
     public void prepare(TranslatorContext ctx) {
-        Method[] methods = LlamaModel.class.getMethods();
-        for (Method method : methods) {
-            methodMap.put(method.getName(), method);
-        }
+
     }
 
     @Override
     public NDList processInput(TranslatorContext ctx, I input) throws Exception {
         LlamaCppModel llamaCppModel = (LlamaCppModel) ctx.getModel();
-        LlamaModel llamaModel = llamaCppModel.getModel();
-        if (input instanceof LlamaCppInput) {
-            LlamaCppInput llamaCppInput = (LlamaCppInput) input;
-            Method method = methodMap.get(llamaCppInput.getInferenceMethod().getMethodName());
-            Object output = method.invoke(llamaModel, llamaCppInput.getInputParams(llamaCppInput.getInferenceMethod()));
-            ctx.setAttachment("out", output);
-        }
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(String.format(URL_FORMAT, llamaCppModel.getPort())))
+                .POST(HttpRequest.BodyPublishers.ofString(input.toString()))
+                .build();
+        HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        ctx.setAttachment("out", response);
         return new NDList();
     }
 

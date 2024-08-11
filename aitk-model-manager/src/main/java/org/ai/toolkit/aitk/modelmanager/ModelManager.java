@@ -165,13 +165,7 @@ public class ModelManager implements InitializingBean {
             if (ALL_MODEL_MAPPING.containsKey(modelDefinition.getId())) {
                 throw new AitkException(AitkErrorCode.KNOWN_ERROR, "modelId is duplicate");
             }
-            //FileDownloadUtil.download(modelDefinition.getModelFileList(), new ConcurrentHashMap<>(), GitEnum.MODELSCOPE);
             ALL_MODEL_MAPPING.put(modelDefinition.getId(), modelDefinition);
-            try {
-                loadModel(modelDefinition.getId(), Device.cpu(), null);
-            } catch (Exception e) {
-                LOGGER.error("loadModel init", e);
-            }
         }
     }
 

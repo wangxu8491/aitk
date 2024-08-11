@@ -28,7 +28,6 @@ public class FileDownloadUtil {
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(TIMEOUT))
             .build();
-
     public static void download(List<String> fileList, ConcurrentHashMap<String, DownloadState> progressMap, GitEnum gitEnum) {
         for (String file : fileList) {
             String url = file.startsWith("/") ? DOWNLOAD_URL + file : DOWNLOAD_URL + "/" + file;
@@ -44,7 +43,7 @@ public class FileDownloadUtil {
                 HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 long contentLength = response.headers().firstValue("Content-Length").map(Long::parseLong).orElse(-1L);
                 inputStream = response.body();
-                byte[] buf = new byte[10240];
+                byte[] buf = new byte[20240];
                 int length = 0;
                 if (contentLength <= 0) {
                     progressMap.put(file, new DownloadState(new RuntimeException("File path error, unable to download")));
